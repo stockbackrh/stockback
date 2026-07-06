@@ -1,0 +1,6 @@
+.vercel
+_clone
+_screenshots
+.DS_Store
+.env
+node_modules
