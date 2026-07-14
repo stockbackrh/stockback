@@ -9,3 +9,7 @@ for f in glob.glob('*.html'):
     if m:
         key=m.group(1); t=top
         t=re.sub(r'<a class="navlink" href="([^"]+)" data-nav="'+key+'">([^<]+)</a>', r'<span class="navlink is-on">\2</span>', t)
+        if key=='scan': t=t.replace('<a class="wbtn" href="/scan.html">Scan a receipt →</a>','<a class="wbtn" href="/app.html">See the shelf →</a>')
+        s=s.replace(m.group(0),t)
+    s=s.replace('<!--#foot-->',foot)
+    open(f,'w').write(s); print('built',f,len(s))
