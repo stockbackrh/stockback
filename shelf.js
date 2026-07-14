@@ -14,3 +14,7 @@ var SHELF = [
   {name:"Take-Two",ticker:"TTWO",domain:"take2games.com",rate:4,cat:"Games",proof:["email"],settle:201,price:238.4,note:"GTA, NBA 2K, Zynga"},
   {name:"AMC Theatres",ticker:"AMC",domain:"amctheatres.com",rate:4,cat:"Cinema",proof:["paper","email"],settle:176,price:3.02,note:"Odeon in the UK"},
   {name:"GameStop",ticker:"GME",domain:"gamestop.com",rate:3,cat:"Games",proof:["paper"],settle:224,price:23.8},
+  {name:"Xbox",ticker:"MSFT",domain:"xbox.com",rate:2,cat:"Games",proof:["email"],settle:158,price:512.6,note:"Game Pass, pays in Microsoft"},
+  {name:"Microsoft 365",ticker:"MSFT",domain:"microsoft.com",rate:2,cat:"Subscription",proof:["email"],settle:166,price:512.6},
+  {name:"YouTube Premium",ticker:"GOOGL",domain:"youtube.com",rate:2,cat:"Subscription",proof:["email"],settle:181,price:242.7,note:"Pays in Alphabet"},
+  {name:"Google One",ticker:"GOOGL",domain:"google.com",rate:2,cat:"Subscription",proof:["email"],settle:179,price:242.7},
