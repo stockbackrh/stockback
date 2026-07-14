@@ -25,3 +25,12 @@
 .drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;min-height:340px;border:1.5px dashed var(--line-strong);border-radius:var(--radius-lg);background:var(--surface);text-align:center;padding:2rem;cursor:pointer;transition:border-color .15s,background .15s}
 .drop:hover,.drop.is-over{border-color:var(--ink);background:#fff}
 .drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop img{max-width:100%;max-height:420px;border-radius:12px;box-shadow:var(--shadow-float)}
+.drop-title{font-weight:600;font-size:1rem;letter-spacing:-.01em}
+.drop-sub{font-size:.84rem;color:var(--ink-dim);max-width:34ch;line-height:1.55}
+.steps{display:flex;flex-direction:column;gap:.55rem;margin:0;padding:0;list-style:none}
+.steps li{display:flex;align-items:center;gap:.7rem;font-size:.88rem;color:var(--ink-dim)}
+.steps li i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-strong);display:grid;place-items:center;font-size:.6rem;font-style:normal;flex:none}
+.steps li.is-on{color:var(--ink)}
+.steps li.is-on i{border-color:var(--ink);animation:pulse 1s infinite}
+.steps li.is-done{color:var(--ink)}
