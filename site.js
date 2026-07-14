@@ -20,3 +20,7 @@
     document.getElementById('calc-ticker').textContent=brand.ticker;
     document.getElementById('calc-total2').textContent=fmt(total);
     document.getElementById('calc-reward').textContent=fmt(r);
+    document.getElementById('calc-shares').textContent=SB.shares(r,brand).toFixed(4)+' '+brand.ticker;
+    document.getElementById('calc-cap').textContent='$'+(holder?SB.capHolder:SB.capBase);
+    var bar=document.getElementById('calc-bar'); bar.style.width=Math.max(4,Math.min(100,raw/(holder?SB.capHolder:SB.capBase)*100))+'%';
+    document.getElementById('calc-note').textContent= total===0 ? 'Move the slider to see what a receipt pays.' : capped
