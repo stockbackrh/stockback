@@ -39,6 +39,7 @@
 <div class="card" style="padding:1.3rem 1.4rem">
   <p class="eyebrow">Reading</p>
   <ol class="steps" id="steps"><li data-k="read"><i>1</i>Read the text off the receipt</li><li data-k="real"><i>2</i>Check it is real, and not already claimed</li><li data-k="match"><i>3</i>Match the merchant to a brand on the shelf</li><li data-k="price"><i>4</i>Price the reward at market</li></ol>
+  <div id="ocr" class="receipt hidden" style="margin-top:1rem"></div>
   <div id="out" class="result hidden"></div>
   <p class="note" id="msg" style="margin-top:1rem">Nothing read yet. A receipt from any brand on the <a href="/app.html">shelf</a> will do. Costco, Apple, AMC and GameStop tills all print their name at the top, which is what the reader looks for first.</p>
 </div>
@@ -47,4 +48,8 @@
 <footer class="foot shell"><span>2026 usestockback.xyz</span><a class="footlink" href="/contact.html">Contact</a><a class="footlink" href="/privacy.html">Privacy</a><a class="footlink" href="/terms.html">Terms</a><a class="footlink" href="https://x.com/StockBackfam" target="_blank" rel="noreferrer noopener">X</a></footer>
 
 </main>
-<script>
+(function(){
+  var params=new URLSearchParams(location.search), hint=params.get('brand');
+  var hintEl=document.getElementById('brand-hint'); if(hint){ hintEl.textContent='Scanning for '+hint; }
+  document.getElementById('email-brands').textContent=SB.live().filter(function(b){return b.proof.indexOf('email')>=0;}).map(function(b){return b.name;}).join(', ');
+  // mode
