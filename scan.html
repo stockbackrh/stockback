@@ -17,6 +17,7 @@
 <title>Scan a receipt — StockBack</title>
 <meta name="description" content="Photograph a receipt or forward the order email. It is read in seconds, matched to the brand's ticker, and paid in that brand's tokenized stock on Robinhood Chain."/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
 <script src="/wallet.js"></script>
 </head><body>
 <div class="topbar"><div class="shell topbar-in"><a class="brand" href="/"><img class="bmark" src="/mark.png" alt="" width="26" height="26"/>StockBack</a><nav class="navlinks"><a class="navlink" href="/app.html" data-nav="shelf">Shelf</a><span class="navlink is-on">Scan</span><a class="navlink" href="/token.html" data-nav="token">Token</a><a class="navlink" href="/docs.html" data-nav="docs">Docs</a><a class="navlink" href="/faq.html" data-nav="faq">FAQ</a></nav><span class="topbar-spacer"></span><span class="wallet"><button class="wbtn is-cta" id="wallet-btn" type="button">Connect wallet</button></span></div></div>
@@ -38,4 +39,12 @@
 <div class="card" style="padding:1.3rem 1.4rem">
   <p class="eyebrow">Reading</p>
   <ol class="steps" id="steps"><li data-k="read"><i>1</i>Read the text off the receipt</li><li data-k="real"><i>2</i>Check it is real, and not already claimed</li><li data-k="match"><i>3</i>Match the merchant to a brand on the shelf</li><li data-k="price"><i>4</i>Price the reward at market</li></ol>
-  <div id="ocr" class="receipt hidden" style="margin-top:1rem"></div>
+  <div id="out" class="result hidden"></div>
+  <p class="note" id="msg" style="margin-top:1rem">Nothing read yet. A receipt from any brand on the <a href="/app.html">shelf</a> will do. Costco, Apple, AMC and GameStop tills all print their name at the top, which is what the reader looks for first.</p>
+</div>
+</section>
+<section class="claims reveal" style="animation-delay:200ms"><h2 style="font-size:1.1rem;letter-spacing:-.02em;margin:1.6rem 0 .6rem">Your claims</h2><div class="card"><div class="trow is-head"><button class="thsort" type="button">Merchant</button><button class="thsort" style="justify-content:flex-end" type="button">Total</button><button class="thsort" style="justify-content:flex-end" type="button">Route</button><button class="thsort" style="justify-content:flex-end" type="button">Reward</button><button class="thsort" style="justify-content:flex-end" type="button">Status</button></div><div id="claims"><p class="loading">No claims on this device yet.</p></div></div><p class="note" style="margin-top:.8rem">One receipt, one reward: the same receipt sent again, from another angle, another phone or another wallet, is turned away. Three receipts a day per wallet. A settled claim links to the transaction that delivered the shares.</p></section>
+<footer class="foot shell"><span>2026 usestockback.xyz</span><a class="footlink" href="/contact.html">Contact</a><a class="footlink" href="/privacy.html">Privacy</a><a class="footlink" href="/terms.html">Terms</a><a class="footlink" href="https://x.com/StockBackfam" target="_blank" rel="noreferrer noopener">X</a></footer>
+
+</main>
+<script>
