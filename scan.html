@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="en" class="__variable_380412 __variable_14db65 __variable_d7bf65 __variable_9f4838"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preload" href="/fonts/636a5ac981f94f8b-s.p.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="/fonts/7d4881bb7e1bf84d-s.p.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="/fonts/9cc5b37ab1350db7-s.p.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="stylesheet" href="/css/fonts.css"/>
+<link rel="stylesheet" href="/css/base.css"/>
+<link rel="stylesheet" href="/stockback.css"/>
+<link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16"/>
+<link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any"/>
+<link rel="apple-touch-icon" href="/apple-icon.png" type="image/png" sizes="180x180"/>
+<meta name="theme-color" content="#0a0a0b"/>
+<meta property="og:site_name" content="StockBack"/><meta property="og:type" content="website"/>
+<meta property="og:image" content="https://usestockback.xyz/og.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:image" content="https://usestockback.xyz/og.png"/>
+<script src="/shelf.js"></script>
+
+<title>Scan a receipt — StockBack</title>
+<meta name="description" content="Photograph a receipt or forward the order email. It is read in seconds, matched to the brand's ticker, and paid in that brand's tokenized stock on Robinhood Chain."/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js"></script>
+<script src="/wallet.js"></script>
+</head><body>
+<div class="topbar"><div class="shell topbar-in"><a class="brand" href="/"><img class="bmark" src="/mark.png" alt="" width="26" height="26"/>StockBack</a><nav class="navlinks"><a class="navlink" href="/app.html" data-nav="shelf">Shelf</a><span class="navlink is-on">Scan</span><a class="navlink" href="/token.html" data-nav="token">Token</a><a class="navlink" href="/docs.html" data-nav="docs">Docs</a><a class="navlink" href="/faq.html" data-nav="faq">FAQ</a></nav><span class="topbar-spacer"></span><span class="wallet"><button class="wbtn is-cta" id="wallet-btn" type="button">Connect wallet</button></span></div></div>
+
+<main class="shell">
+<section class="pagehead reveal"><h1>Scan a receipt</h1><p>Photograph the paper, or forward the email. Everything is read here, in your browser, before anything leaves it. Connect a wallet on Robinhood Chain, and an accepted claim is bought as the brand's tokenized share and sent to that wallet by the settlement keeper, usually within minutes.</p></section>
+<div class="toolbar reveal" style="animation-delay:80ms"><div class="segs" id="mode"><button class="seg is-on" data-mode="paper" type="button">Paper receipt</button><button class="seg" data-mode="email" type="button">Order email</button></div><span class="toolbar-spacer"></span><span class="mini" id="brand-hint"></span></div>
+<section class="scan reveal" style="animation-delay:140ms">
+<div>
+  <div id="paper-pane">
+    <label class="drop" id="drop"><input type="file" id="file" accept="image/*" capture="environment"/><img id="preview" class="hidden" alt=""/><span id="drop-text"><span class="drop-title">Photograph the receipt</span><br/><span class="drop-sub">Tap to open the camera on a phone, or drop a photo here. The merchant, the date and the total are read on this page, by a model, in a few seconds.</span></span></label>
+  </div>
+  <div id="email-pane" class="hidden">
+    <div class="card" style="padding:1.3rem 1.4rem"><p class="eyebrow">Forward the confirmation to</p><div class="mailbox"><span id="mail-addr">receipts@usestockback.xyz</span><button type="button" id="copy-mail">Copy</button></div><p class="note" style="margin:.9rem 0 0">Forward it from the address you signed in with, unchanged. The sender domain is checked against the merchant, the total is read from the body, and the claim appears in the list below within a few minutes. Subscriptions renew on their own, so a Netflix or Xbox renewal becomes a monthly reward you never have to photograph.</p>
+    <p class="note" style="margin:.6rem 0 0">Accepted today from: <span id="email-brands"></span>.</p></div>
+    <div class="card" style="padding:1.3rem 1.4rem;margin-top:1rem"><p class="eyebrow">Or paste the email text here</p><textarea id="email-text" class="receipt" style="width:100%;min-height:150px;resize:vertical;font-family:inherit" placeholder="Paste the order confirmation. It is read the same way a photo is."></textarea><div class="btns" style="margin-top:.7rem"><button class="btn is-primary" type="button" id="read-email">Read it</button></div></div>
+  </div>
+</div>
+<div class="card" style="padding:1.3rem 1.4rem">
+  <p class="eyebrow">Reading</p>
+  <ol class="steps" id="steps"><li data-k="read"><i>1</i>Read the text off the receipt</li><li data-k="real"><i>2</i>Check it is real, and not already claimed</li><li data-k="match"><i>3</i>Match the merchant to a brand on the shelf</li><li data-k="price"><i>4</i>Price the reward at market</li></ol>
+  <div id="ocr" class="receipt hidden" style="margin-top:1rem"></div>
