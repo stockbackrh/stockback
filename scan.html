@@ -48,8 +48,16 @@
 <footer class="foot shell"><span>2026 usestockback.xyz</span><a class="footlink" href="/contact.html">Contact</a><a class="footlink" href="/privacy.html">Privacy</a><a class="footlink" href="/terms.html">Terms</a><a class="footlink" href="https://x.com/StockBackfam" target="_blank" rel="noreferrer noopener">X</a></footer>
 
 </main>
+<script>
 (function(){
   var params=new URLSearchParams(location.search), hint=params.get('brand');
   var hintEl=document.getElementById('brand-hint'); if(hint){ hintEl.textContent='Scanning for '+hint; }
   document.getElementById('email-brands').textContent=SB.live().filter(function(b){return b.proof.indexOf('email')>=0;}).map(function(b){return b.name;}).join(', ');
   // mode
+  document.querySelectorAll('#mode .seg').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('#mode .seg').forEach(function(x){x.classList.remove('is-on');}); b.classList.add('is-on'); var em=b.dataset.mode==='email'; document.getElementById('paper-pane').classList.toggle('hidden',em); document.getElementById('email-pane').classList.toggle('hidden',!em); }); });
+  document.getElementById('copy-mail').addEventListener('click',function(){ navigator.clipboard&&navigator.clipboard.writeText('receipts@usestockback.xyz'); this.textContent='Copied'; var t=this; setTimeout(function(){t.textContent='Copy';},1400); });
+  // steps
+  var steps=document.querySelectorAll('#steps li'), msg=document.getElementById('msg'), ocr=document.getElementById('ocr'), out=document.getElementById('out');
+  function step(k,state){ steps.forEach(function(li){ if(li.dataset.k===k){ li.className=state; } }); }
+  function reset(){ steps.forEach(function(li){li.className='';}); ocr.classList.add('hidden'); out.classList.add('hidden'); out.innerHTML=''; }
+  function esc(s){ return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
