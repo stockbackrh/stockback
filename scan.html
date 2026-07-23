@@ -68,6 +68,7 @@
     claimsEl.innerHTML=list.map(function(x){ return '<div class="trow"><span class="tasset"><span class="tname"><b>'+esc(x.merchant)+'</b><span>'+new Date(x.created_at).toLocaleString()+'</span></span></span><span class="tcell"><b>'+SB.money(Number(x.total_usd))+'</b><span>read</span></span><span class="tcell"><b>'+x.route+'</b><span>'+Number(x.rate)+'%</span></span><span class="tcell"><b>'+SB.money(Number(x.reward_usd))+'</b><span>in '+x.ticker+'</span></span><span class="tage">'+statusHtml(x)+'</span></div>'; }).join(''); }
   async function loadClaims(){ if(!SBW.address) return renderClaims([]); try{ var r=await fetch('/api/claims?wallet='+SBW.address).then(function(r){return r.json();}); renderClaims(r.claims||[]); }catch(e){ renderClaims([]); } }
   function hash(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } var h2=0; for(var j=0;j<s.length;j++){ h2=(h2*31+s.charCodeAt(j))|0; } return (h>>>0).toString(16).padStart(8,'0')+(h2>>>0).toString(16).padStart(8,'0'); }
+  SBW.onChange(function(){ document.getElementById('wallet-btn').textContent=SBW.address?SBW.short()+(SBW.chainOk?'':' · wrong chain'):'Connect wallet'; loadClaims(); if(pending&&SBW.address) submit(pending); });
   document.getElementById('wallet-btn').addEventListener('click',function(){ SBW.connect().catch(function(e){ msg.textContent='Wallet: '+(e.message||e); }); });
   var pending=null;
   async function submit(r){
@@ -75,3 +76,7 @@
     if(!SBW.chainOk){ try{ await SBW.switchChain(); }catch(e){ msg.textContent='Switch the wallet to Robinhood Chain to file the claim.'; return; } }
     pending=null; msg.textContent='Sign the claim in your wallet. It costs nothing, it only proves the wallet is yours.';
     try{
+      var message='Stockback claim\nfingerprint: '+r.key+'\ntime: '+Date.now();
+      var signature=await SBW.sign(message);
+      var res=await fetch('/api/claims',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({wallet:SBW.address,message:message,signature:signature,fingerprint:r.key,merchant:r.brand.name,ticker:r.brand.ticker,total:r.total,route:r.route,excerpt:r.excerpt})});
+      var j=await res.json();
