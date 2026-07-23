@@ -47,7 +47,6 @@
 <section class="claims reveal" style="animation-delay:200ms"><h2 style="font-size:1.1rem;letter-spacing:-.02em;margin:1.6rem 0 .6rem">Your claims</h2><div class="card"><div class="trow is-head"><button class="thsort" type="button">Merchant</button><button class="thsort" style="justify-content:flex-end" type="button">Total</button><button class="thsort" style="justify-content:flex-end" type="button">Route</button><button class="thsort" style="justify-content:flex-end" type="button">Reward</button><button class="thsort" style="justify-content:flex-end" type="button">Status</button></div><div id="claims"><p class="loading">No claims on this device yet.</p></div></div><p class="note" style="margin-top:.8rem">One receipt, one reward: the same receipt sent again, from another angle, another phone or another wallet, is turned away. Three receipts a day per wallet. A settled claim links to the transaction that delivered the shares.</p></section>
 <footer class="foot shell"><span>2026 usestockback.xyz</span><a class="footlink" href="/contact.html">Contact</a><a class="footlink" href="/privacy.html">Privacy</a><a class="footlink" href="/terms.html">Terms</a><a class="footlink" href="https://x.com/StockBackfam" target="_blank" rel="noreferrer noopener">X</a></footer>
 
-</main>
 <script>
 (function(){
   var params=new URLSearchParams(location.search), hint=params.get('brand');
@@ -77,6 +76,62 @@
     pending=null; msg.textContent='Sign the claim in your wallet. It costs nothing, it only proves the wallet is yours.';
     try{
       var message='Stockback claim\nfingerprint: '+r.key+'\ntime: '+Date.now();
-      var signature=await SBW.sign(message);
       var res=await fetch('/api/claims',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({wallet:SBW.address,message:message,signature:signature,fingerprint:r.key,merchant:r.brand.name,ticker:r.brand.ticker,total:r.total,route:r.route,excerpt:r.excerpt})});
       var j=await res.json();
+      if(!res.ok){ if(res.status===409){ step('real','is-bad'); msg.innerHTML='<b>Already claimed.</b> This receipt was filed before, by this wallet or another. One purchase, one reward.'; } else { msg.innerHTML='<b>Not filed.</b> '+esc(j.error||'server error'); } return; }
+      msg.innerHTML='<b>Filed.</b> The keeper buys '+r.brand.ticker+' at market and sends it to '+SBW.short()+'. Watch the list below; a settled claim links to its transaction.';
+      loadClaims();
+    }catch(e){ msg.textContent='Not filed: '+(e.shortMessage||e.message||e); }
+  }
+  loadClaims();
+  // parse
+  function parse(text){
+    var t=text.replace(/\r/g,''), lines=t.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+    var brand=SB.find(t); var total=null, m;
+    var re=/(?:grand\s*total|total\s*due|amount\s*due|order\s*total|total)[^0-9\n]{0,24}?\$?\s*([0-9]{1,5}[.,][0-9]{2})/ig, best=null;
+    while((m=re.exec(t))){ var v=parseFloat(m[1].replace(',','.')); if(!isNaN(v)) best=v; }
+    if(best==null){ var nums=(t.match(/\$\s?[0-9]{1,5}\.[0-9]{2}/g)||[]).map(function(x){return parseFloat(x.replace(/[^0-9.]/g,''));}); if(nums.length) best=Math.max.apply(null,nums); }
+    var date=(t.match(/\b(20[0-9]{2}[-\/.][01]?[0-9][-\/.][0-3]?[0-9]|[01]?[0-9][-\/.][0-3]?[0-9][-\/.](?:20)?[0-9]{2})\b/)||[])[0]||null;
+    return {brand:brand,total:total,date:date,lines:lines};
+  }
+  function finish(text, route){
+    step('read','is-done'); ocr.classList.remove('hidden');
+    var r=parse(text); var shown=esc(text).slice(0,1400);
+    if(r.brand){ var re=new RegExp('('+r.brand.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','i'); shown=shown.replace(re,'<mark>$1</mark>'); }
+    if(r.total!=null){ shown=shown.replace(new RegExp('('+String(r.total.toFixed(2)).replace('.','\\.')+')'),'<mark>$1</mark>'); }
+    ocr.innerHTML=shown||'<span style="color:var(--ink-faint)">No text could be read. Try a flatter, brighter photo.</span>';
+    var key=hash(text.replace(/\s+/g,' ').toLowerCase().slice(0,600)); var dup=false;
+      if(dup){ step('real','is-bad'); msg.innerHTML='<b>Already claimed.</b> This receipt was sent before. One purchase, one reward.'; return; }
+      step('real','is-done');
+      setTimeout(function(){
+        if(!r.brand){ step('match','is-bad'); msg.innerHTML='<b>Not on the shelf.</b> No brand name the reader knows was found on this receipt. See the <a href="/app.html">shelf</a> for who pays today.'; return; }
+        if(r.brand.soon){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' is not paying yet.</b> Robinhood has not listed '+r.brand.ticker+' on chain. It will be on the shelf the day they do.'; return; }
+        if(route==='email'&&r.brand.proof.indexOf('email')<0){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' accepts paper only.</b> Photograph the till receipt instead.'; return; }
+        if(route==='paper'&&r.brand.proof.indexOf('paper')<0){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' accepts email only.</b> Forward the order confirmation instead.'; return; }
+        step('match','is-done');
+        if(r.total==null){ step('price','is-bad'); msg.innerHTML='<b>No total found.</b> The reader saw '+r.brand.name+' but could not find a total. Make sure the bottom of the receipt is in the frame.'; return; }
+        setTimeout(function(){
+          step('price','is-done');
+          var reward=SB.reward(r.total,r.brand,false), sh=SB.shares(reward,r.brand);
+          out.classList.remove('hidden');
+          out.innerHTML='<div class="prow"><span>Merchant</span><span>'+r.brand.name+' → '+r.brand.ticker+'</span></div><div class="prow"><span>Total read</span><span>'+SB.money(r.total)+'</span></div><div class="prow"><span>Date</span><span>'+(r.date||'not found, today assumed')+'</span></div><div class="prow"><span>Rate</span><span>'+r.brand.rate+'% · cap $'+SB.capBase+' ($'+SB.capHolder+' holding $STOCKBACK)</span></div><div class="reward"><div><b>'+SB.money(reward)+' in '+r.brand.ticker+'</b><small>≈ '+sh.toFixed(4)+' '+r.brand.ticker+' at '+SB.money(r.brand.price)+'</small></div><span>at market, on settlement</span></div>';
+          submit({key:key,brand:r.brand,total:r.total,route:route,excerpt:text.slice(0,600)});
+        },500);
+      },600);
+    },700);
+  }
+  // paper: OCR in the browser
+  var file=document.getElementById('file'), drop=document.getElementById('drop'), preview=document.getElementById('preview');
+  function handle(f){ if(!f) return; reset(); preview.src=URL.createObjectURL(f); preview.classList.remove('hidden'); document.getElementById('drop-text').classList.add('hidden'); step('read','is-on'); msg.textContent='Reading the receipt on this page. A few seconds.';
+    if(!window.Tesseract){ msg.textContent='The reader could not load. Check the connection and try again.'; return; }
+    Tesseract.recognize(f,'eng',{logger:function(m){ if(m.status==='recognizing text'&&m.progress){ msg.textContent='Reading… '+Math.round(m.progress*100)+'%'; } }}).then(function(res){ finish(res.data.text||'','paper'); }).catch(function(e){ step('read','is-bad'); msg.textContent='Could not read that photo: '+(e&&e.message||e); });
+  }
+  file.addEventListener('change',function(){ handle(file.files[0]); });
+  ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('is-over'); }); });
+  ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('is-over'); }); });
+  drop.addEventListener('drop',function(e){ handle(e.dataTransfer.files[0]); });
+  // email: paste
+  document.getElementById('read-email').addEventListener('click',function(){ var t=document.getElementById('email-text').value.trim(); if(!t){ msg.textContent='Paste the email first.'; return; } reset(); step('read','is-on'); setTimeout(function(){ finish(t,'email'); },400); });
+})();
+</script>
+</body></html>
