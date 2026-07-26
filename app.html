@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="en" class="__variable_380412 __variable_14db65 __variable_d7bf65 __variable_9f4838"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preload" href="/fonts/636a5ac981f94f8b-s.p.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="/fonts/7d4881bb7e1bf84d-s.p.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="/fonts/9cc5b37ab1350db7-s.p.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="stylesheet" href="/css/fonts.css"/>
+<link rel="stylesheet" href="/css/base.css"/>
+<link rel="stylesheet" href="/stockback.css"/>
+<link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16"/>
+<link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any"/>
+<link rel="apple-touch-icon" href="/apple-icon.png" type="image/png" sizes="180x180"/>
+<meta name="theme-color" content="#0a0a0b"/>
+<meta property="og:site_name" content="StockBack"/><meta property="og:type" content="website"/>
+<meta property="og:image" content="https://usestockback.xyz/og.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:image" content="https://usestockback.xyz/og.png"/>
+<script src="/shelf.js"></script>
+
+<title>Shelf — StockBack</title>
+<meta name="description" content="Every brand that pays in its own tokenized stock on Robinhood Chain, with the rate it pays, what it accepts as proof, and how long the last hundred rewards took to settle."/>
+</head><body>
+<div class="topbar"><div class="shell topbar-in"><a class="brand" href="/"><img class="bmark" src="/mark.png" alt="" width="26" height="26"/>StockBack</a><nav class="navlinks"><span class="navlink is-on">Shelf</span><a class="navlink" href="/scan.html" data-nav="scan">Scan</a><a class="navlink" href="/token.html" data-nav="token">Token</a><a class="navlink" href="/docs.html" data-nav="docs">Docs</a><a class="navlink" href="/faq.html" data-nav="faq">FAQ</a></nav><span class="topbar-spacer"></span><a class="wbtn" href="/scan.html">Scan a receipt →</a></div></div>
+
+<main class="shell">
+<section class="pagehead reveal"><h1>Shelf</h1><p>Every brand that pays in its own stock, the rate it pays, what it accepts as proof, and the number nobody else prints: how long the last hundred rewards took to land in a wallet.</p></section>
+<section class="summary reveal" style="animation-delay:80ms"><div class="scell"><span class="scell-label">Brands paying today</span><span class="scell-value mono" id="s-live">—</span></div><div class="scell"><span class="scell-label">Listed as Robinhood adds them</span><span class="scell-value mono" id="s-soon">—</span></div><div class="scell"><span class="scell-label">Highest rate</span><span class="scell-value mono" id="s-rate">—</span></div><div class="scell"><span class="scell-label">Slowest settlement</span><span class="scell-value mono is-alarm" id="s-slow">—</span></div></section>
+<div class="toolbar reveal" style="animation-delay:140ms"><div class="segs" id="segs"><button class="seg is-on" data-seg="live" type="button">Paying now</button><button class="seg" data-seg="soon" type="button">Coming soon</button><button class="seg" data-seg="all" type="button">All brands</button></div><span class="toolbar-spacer"></span><label class="sortpick"><select id="sort"><option value="rate">Highest rate</option><option value="settle">Fastest settlement</option><option value="name">A to Z</option></select></label><label class="search"><input id="q" placeholder="Search brands or tickers" autocomplete="off"/></label></div>
+<div class="card reveal" style="animation-delay:200ms"><div class="trow is-head"><button class="thsort" type="button">Brand</button><button class="thsort" style="justify-content:flex-end" type="button">Rate</button><button class="thsort" style="justify-content:flex-end" type="button">Proof</button><button class="thsort" style="justify-content:flex-end" type="button">Pays in</button><button class="thsort" style="justify-content:flex-end" type="button">Settlement</button></div><div id="rows"></div></div>
+<p class="note" style="margin-top:1rem">Rates are set by the brand and can change; a change applies to claims sent after it. Settlement is the median time from an accepted claim to shares in the wallet, over the last hundred rewards for that brand. Brands are references, not partners. Tokenized shares track the price of the underlying share and move in both directions.</p>
+<footer class="foot shell"><span>2026 usestockback.xyz</span><a class="footlink" href="/contact.html">Contact</a><a class="footlink" href="/privacy.html">Privacy</a><a class="footlink" href="/terms.html">Terms</a><a class="footlink" href="https://x.com/StockBackfam" target="_blank" rel="noreferrer noopener">X</a></footer>
+
+</main>
+<script>
+(function(){
