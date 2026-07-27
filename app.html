@@ -10,6 +10,7 @@
 <link rel="icon" href="/icon.svg" type="image/svg+xml" sizes="any"/>
 <link rel="apple-touch-icon" href="/apple-icon.png" type="image/png" sizes="180x180"/>
 <meta name="theme-color" content="#0a0a0b"/>
+<meta property="og:site_name" content="StockBack"/><meta property="og:type" content="website"/>
 <meta property="og:image" content="https://usestockback.xyz/og.png"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:image" content="https://usestockback.xyz/og.png"/>
 <script src="/shelf.js"></script>
 
@@ -35,3 +36,8 @@
   function row(b){
     var soon=!!b.soon, s=soon?null:b.settle, slow=s!=null&&s>600;
     return '<a class="trow'+(soon?' is-soon':'')+'" href="/scan.html?brand='+encodeURIComponent(b.name)+'">'
+      +'<span class="tasset"><img class="tlogo" src="'+SB.logo(b)+'" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'tsym\',textContent:\''+b.ticker.slice(0,4)+'\'}))"/><span class="tname"><b>'+b.name+(soon?'<span class="ttag">soon</span>':'')+'</b><span>'+b.cat+(b.note?' · '+b.note:'')+'</span></span></span>'
+      +'<span class="tcell"><b>'+b.rate+'%</b><span>of the receipt</span></span>'
+      +'<span class="tcell"><b>'+proofHtml(b.proof)+'</b><span>'+(b.proof.length>1?'either':'only')+'</span></span>'
+      +'<span class="tcell"><b>'+b.ticker+'</b><span>'+(b.price?SB.money(b.price):'not listed yet')+'</span></span>'
+      +'<span class="tage'+(soon?' is-unknown':(slow?' is-stale':''))+'"><b>'+(soon?'—':SB.fmtSec(s))+'</b><span class="tage-bar"><i style="width:'+(soon?0:Math.max(6,Math.min(100,s/600*100)))+'%"></i></span></span></a>';
