@@ -41,3 +41,8 @@
       +'<span class="tcell"><b>'+proofHtml(b.proof)+'</b><span>'+(b.proof.length>1?'either':'only')+'</span></span>'
       +'<span class="tcell"><b>'+b.ticker+'</b><span>'+(b.price?SB.money(b.price):'not listed yet')+'</span></span>'
       +'<span class="tage'+(soon?' is-unknown':(slow?' is-stale':''))+'"><b>'+(soon?'—':SB.fmtSec(s))+'</b><span class="tage-bar"><i style="width:'+(soon?0:Math.max(6,Math.min(100,s/600*100)))+'%"></i></span></span></a>';
+  }
+  function render(){
+    var list=SHELF.filter(function(b){ return seg==='all'||(seg==='live'?!b.soon:!!b.soon); });
+    if(q){ var t=q.toLowerCase(); list=list.filter(function(b){return b.name.toLowerCase().indexOf(t)>=0||b.ticker.toLowerCase().indexOf(t)>=0||b.cat.toLowerCase().indexOf(t)>=0;}); }
+    list.sort(function(a,b){ if(sort==='rate') return b.rate-a.rate||a.name.localeCompare(b.name); if(sort==='settle') return (a.settle||1e9)-(b.settle||1e9); return a.name.localeCompare(b.name); });
