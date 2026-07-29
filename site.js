@@ -26,3 +26,7 @@
     document.getElementById('calc-note').textContent= total===0 ? 'Move the slider to see what a receipt pays.' : capped
       ? 'This receipt would earn '+fmt(raw)+' at '+brand.rate+'%, but the cap is $'+(holder?SB.capHolder:SB.capBase)+' a receipt. '+(holder?'That is the holder cap.':'Hold $STOCKBACK and the cap moves to $'+SB.capHolder+'.')
       : fmt(r)+' is '+brand.rate+'% of the receipt, converted to '+brand.ticker+' at market when the claim settles. Under the cap, so nothing is left on the table.';
+  }
+  range.addEventListener('input',render);
+  picks.forEach(function(b){ b.addEventListener('click',function(){ picks.forEach(function(x){x.classList.remove('is-on');}); b.classList.add('is-on'); brand=SHELF.find(function(x){return x.name===b.dataset.brand;}); render(); }); });
+  tabs.forEach(function(t){ t.addEventListener('click',function(){ tabs.forEach(function(x){x.classList.remove('is-on');}); t.classList.add('is-on'); holder=t.dataset.holder==='1'; render(); }); });
