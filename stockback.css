@@ -34,3 +34,15 @@
 .steps li.is-on{color:var(--ink)}
 .steps li.is-on i{border-color:var(--ink);animation:pulse 1s infinite}
 .steps li.is-done{color:var(--ink)}
+.steps li.is-done i{background:var(--ink);border-color:var(--ink);color:#fff}
+.steps li.is-bad i{background:var(--alarm);border-color:var(--alarm);color:#fff}
+@keyframes pulse{50%{box-shadow:0 0 0 4px rgba(20,20,28,.08)}}
+.receipt{font-family:var(--font-mono),ui-monospace,monospace;font-size:.78rem;line-height:1.6;background:#fff;border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem;color:var(--ink-dim);max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.receipt mark{background:color-mix(in srgb,var(--up) 22%,#fff);color:var(--ink);border-radius:3px;padding:0 .12em}
+.result{display:grid;gap:.55rem;margin-top:.9rem}
+.result .prow span:last-child{font-weight:600}
+.reward{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-top:.5rem;padding:1rem 1.1rem;border-radius:12px;background:var(--ink);color:#fff}
+.reward b{font-size:1.5rem;letter-spacing:-.04em;font-weight:700}
+.reward small{display:block;font-size:.74rem;color:rgba(255,255,255,.55);margin-top:.15rem}
+.mailbox{display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.8rem 1rem;border:1px solid var(--line-strong);border-radius:12px;background:#fff;font-family:var(--font-mono),ui-monospace,monospace;font-size:.86rem}
+.mailbox button{border:0;background:var(--ink);color:#fff;font-size:.76rem;font-weight:600;padding:.4rem .8rem;border-radius:100px;cursor:pointer;font-family:var(--font-body),system-ui,sans-serif}
