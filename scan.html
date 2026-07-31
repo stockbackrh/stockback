@@ -36,7 +36,6 @@
     <div class="card" style="padding:1.3rem 1.4rem;margin-top:1rem"><p class="eyebrow">Or paste the email text here</p><textarea id="email-text" class="receipt" style="width:100%;min-height:150px;resize:vertical;font-family:inherit" placeholder="Paste the order confirmation. It is read the same way a photo is."></textarea><div class="btns" style="margin-top:.7rem"><button class="btn is-primary" type="button" id="read-email">Read it</button></div></div>
   </div>
 </div>
-<div class="card" style="padding:1.3rem 1.4rem">
   <p class="eyebrow">Reading</p>
   <ol class="steps" id="steps"><li data-k="read"><i>1</i>Read the text off the receipt</li><li data-k="real"><i>2</i>Check it is real, and not already claimed</li><li data-k="match"><i>3</i>Match the merchant to a brand on the shelf</li><li data-k="price"><i>4</i>Price the reward at market</li></ol>
   <div id="ocr" class="receipt hidden" style="margin-top:1rem"></div>
@@ -91,3 +90,9 @@
     var t=text.replace(/\r/g,''), lines=t.split('\n').map(function(l){return l.trim();}).filter(Boolean);
     var brand=SB.find(t); var total=null, m;
     var re=/(?:grand\s*total|total\s*due|amount\s*due|order\s*total|total)[^0-9\n]{0,24}?\$?\s*([0-9]{1,5}[.,][0-9]{2})/ig, best=null;
+    while((m=re.exec(t))){ var v=parseFloat(m[1].replace(',','.')); if(!isNaN(v)) best=v; }
+    if(best==null){ var nums=(t.match(/\$\s?[0-9]{1,5}\.[0-9]{2}/g)||[]).map(function(x){return parseFloat(x.replace(/[^0-9.]/g,''));}); if(nums.length) best=Math.max.apply(null,nums); }
+    total=best;
+    var date=(t.match(/\b(20[0-9]{2}[-\/.][01]?[0-9][-\/.][0-3]?[0-9]|[01]?[0-9][-\/.][0-3]?[0-9][-\/.](?:20)?[0-9]{2})\b/)||[])[0]||null;
+    return {brand:brand,total:total,date:date,lines:lines};
+  }
