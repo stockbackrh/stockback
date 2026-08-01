@@ -36,6 +36,7 @@
     <div class="card" style="padding:1.3rem 1.4rem;margin-top:1rem"><p class="eyebrow">Or paste the email text here</p><textarea id="email-text" class="receipt" style="width:100%;min-height:150px;resize:vertical;font-family:inherit" placeholder="Paste the order confirmation. It is read the same way a photo is."></textarea><div class="btns" style="margin-top:.7rem"><button class="btn is-primary" type="button" id="read-email">Read it</button></div></div>
   </div>
 </div>
+<div class="card" style="padding:1.3rem 1.4rem">
   <p class="eyebrow">Reading</p>
   <ol class="steps" id="steps"><li data-k="read"><i>1</i>Read the text off the receipt</li><li data-k="real"><i>2</i>Check it is real, and not already claimed</li><li data-k="match"><i>3</i>Match the merchant to a brand on the shelf</li><li data-k="price"><i>4</i>Price the reward at market</li></ol>
   <div id="ocr" class="receipt hidden" style="margin-top:1rem"></div>
@@ -64,7 +65,6 @@
   var claimsEl=document.getElementById('claims');
   function statusHtml(x){ if(x.status==='settled') return '<b><span class="tick">settled</span></b><span class="tage-bar"><i style="width:100%"></i></span><a class="mini" href="'+SB.explorer+'/tx/'+x.tx_hash+'" target="_blank" rel="noreferrer noopener" style="font-size:.66rem">'+(x.token_amount?Number(x.token_amount).toFixed(4)+' '+x.ticker+' ↗':'tx ↗')+'</a>'; if(x.status==='rejected') return '<b>turned away</b><span class="tage-bar"><i style="width:8%"></i></span>'; if(x.status==='queued') return '<b style="color:var(--alarm)">queued</b><span class="tage-bar"><i style="width:40%;background:var(--alarm)"></i></span><span class="mini" style="font-size:.62rem;color:var(--ink-faint)">'+(x.reason||'')+'</span>'; return '<b>accepted</b><span class="tage-bar"><i style="width:55%"></i></span><span class="mini" style="font-size:.62rem;color:var(--ink-faint)">settling</span>'; }
   function renderClaims(list){ if(!list||!list.length){ claimsEl.innerHTML='<p class="loading">'+(SBW.address?'No claims from this wallet yet.':'Connect a wallet to see its claims.')+'</p>'; return; }
-    claimsEl.innerHTML=list.map(function(x){ return '<div class="trow"><span class="tasset"><span class="tname"><b>'+esc(x.merchant)+'</b><span>'+new Date(x.created_at).toLocaleString()+'</span></span></span><span class="tcell"><b>'+SB.money(Number(x.total_usd))+'</b><span>read</span></span><span class="tcell"><b>'+x.route+'</b><span>'+Number(x.rate)+'%</span></span><span class="tcell"><b>'+SB.money(Number(x.reward_usd))+'</b><span>in '+x.ticker+'</span></span><span class="tage">'+statusHtml(x)+'</span></div>'; }).join(''); }
   async function loadClaims(){ if(!SBW.address) return renderClaims([]); try{ var r=await fetch('/api/claims?wallet='+SBW.address).then(function(r){return r.json();}); renderClaims(r.claims||[]); }catch(e){ renderClaims([]); } }
   function hash(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } var h2=0; for(var j=0;j<s.length;j++){ h2=(h2*31+s.charCodeAt(j))|0; } return (h>>>0).toString(16).padStart(8,'0')+(h2>>>0).toString(16).padStart(8,'0'); }
   SBW.onChange(function(){ document.getElementById('wallet-btn').textContent=SBW.address?SBW.short()+(SBW.chainOk?'':' · wrong chain'):'Connect wallet'; loadClaims(); if(pending&&SBW.address) submit(pending); });
@@ -96,3 +96,6 @@
     var date=(t.match(/\b(20[0-9]{2}[-\/.][01]?[0-9][-\/.][0-3]?[0-9]|[01]?[0-9][-\/.][0-3]?[0-9][-\/.](?:20)?[0-9]{2})\b/)||[])[0]||null;
     return {brand:brand,total:total,date:date,lines:lines};
   }
+  function finish(text, route){
+    step('read','is-done'); ocr.classList.remove('hidden');
+    var r=parse(text); var shown=esc(text).slice(0,1400);
