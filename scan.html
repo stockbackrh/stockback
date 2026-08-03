@@ -65,8 +65,8 @@
   var claimsEl=document.getElementById('claims');
   function statusHtml(x){ if(x.status==='settled') return '<b><span class="tick">settled</span></b><span class="tage-bar"><i style="width:100%"></i></span><a class="mini" href="'+SB.explorer+'/tx/'+x.tx_hash+'" target="_blank" rel="noreferrer noopener" style="font-size:.66rem">'+(x.token_amount?Number(x.token_amount).toFixed(4)+' '+x.ticker+' ↗':'tx ↗')+'</a>'; if(x.status==='rejected') return '<b>turned away</b><span class="tage-bar"><i style="width:8%"></i></span>'; if(x.status==='queued') return '<b style="color:var(--alarm)">queued</b><span class="tage-bar"><i style="width:40%;background:var(--alarm)"></i></span><span class="mini" style="font-size:.62rem;color:var(--ink-faint)">'+(x.reason||'')+'</span>'; return '<b>accepted</b><span class="tage-bar"><i style="width:55%"></i></span><span class="mini" style="font-size:.62rem;color:var(--ink-faint)">settling</span>'; }
   function renderClaims(list){ if(!list||!list.length){ claimsEl.innerHTML='<p class="loading">'+(SBW.address?'No claims from this wallet yet.':'Connect a wallet to see its claims.')+'</p>'; return; }
+    claimsEl.innerHTML=list.map(function(x){ return '<div class="trow"><span class="tasset"><span class="tname"><b>'+esc(x.merchant)+'</b><span>'+new Date(x.created_at).toLocaleString()+'</span></span></span><span class="tcell"><b>'+SB.money(Number(x.total_usd))+'</b><span>read</span></span><span class="tcell"><b>'+x.route+'</b><span>'+Number(x.rate)+'%</span></span><span class="tcell"><b>'+SB.money(Number(x.reward_usd))+'</b><span>in '+x.ticker+'</span></span><span class="tage">'+statusHtml(x)+'</span></div>'; }).join(''); }
   async function loadClaims(){ if(!SBW.address) return renderClaims([]); try{ var r=await fetch('/api/claims?wallet='+SBW.address).then(function(r){return r.json();}); renderClaims(r.claims||[]); }catch(e){ renderClaims([]); } }
-  function hash(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } var h2=0; for(var j=0;j<s.length;j++){ h2=(h2*31+s.charCodeAt(j))|0; } return (h>>>0).toString(16).padStart(8,'0')+(h2>>>0).toString(16).padStart(8,'0'); }
   SBW.onChange(function(){ document.getElementById('wallet-btn').textContent=SBW.address?SBW.short()+(SBW.chainOk?'':' · wrong chain'):'Connect wallet'; loadClaims(); if(pending&&SBW.address) submit(pending); });
   document.getElementById('wallet-btn').addEventListener('click',function(){ SBW.connect().catch(function(e){ msg.textContent='Wallet: '+(e.message||e); }); });
   var pending=null;
@@ -99,3 +99,6 @@
   function finish(text, route){
     step('read','is-done'); ocr.classList.remove('hidden');
     var r=parse(text); var shown=esc(text).slice(0,1400);
+    if(r.brand){ var re=new RegExp('('+r.brand.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','i'); shown=shown.replace(re,'<mark>$1</mark>'); }
+    if(r.total!=null){ shown=shown.replace(new RegExp('('+String(r.total.toFixed(2)).replace('.','\\.')+')'),'<mark>$1</mark>'); }
+    ocr.innerHTML=shown||'<span style="color:var(--ink-faint)">No text could be read. Try a flatter, brighter photo.</span>';
