@@ -28,7 +28,6 @@
 <footer class="foot shell"><span>2026 usestockback.xyz</span><a class="footlink" href="/contact.html">Contact</a><a class="footlink" href="/privacy.html">Privacy</a><a class="footlink" href="/terms.html">Terms</a><a class="footlink" href="https://x.com/StockBackfam" target="_blank" rel="noreferrer noopener">X</a></footer>
 
 </main>
-<script>
 (function(){
   var seg='live', sort='rate', q='';
   var rows=document.getElementById('rows');
@@ -46,3 +45,9 @@
     var list=SHELF.filter(function(b){ return seg==='all'||(seg==='live'?!b.soon:!!b.soon); });
     if(q){ var t=q.toLowerCase(); list=list.filter(function(b){return b.name.toLowerCase().indexOf(t)>=0||b.ticker.toLowerCase().indexOf(t)>=0||b.cat.toLowerCase().indexOf(t)>=0;}); }
     list.sort(function(a,b){ if(sort==='rate') return b.rate-a.rate||a.name.localeCompare(b.name); if(sort==='settle') return (a.settle||1e9)-(b.settle||1e9); return a.name.localeCompare(b.name); });
+    rows.innerHTML=list.length?list.map(row).join(''):'<p class="loading">Nothing on the shelf matches that.</p>';
+  }
+  document.querySelectorAll('#segs .seg').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('#segs .seg').forEach(function(x){x.classList.remove('is-on');}); b.classList.add('is-on'); seg=b.dataset.seg; render(); }); });
+  document.getElementById('sort').addEventListener('change',function(e){ sort=e.target.value; render(); });
+  document.getElementById('q').addEventListener('input',function(e){ q=e.target.value.trim(); render(); });
+  var live=SB.live(), soon=SHELF.filter(function(b){return b.soon;});
