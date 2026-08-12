@@ -21,6 +21,7 @@ module.exports = async (req, res) => {
     }
     if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
     const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+    const wallet = String(b.wallet || '').toLowerCase();
     if (!/^0x[0-9a-f]{40}$/.test(wallet)) return res.status(400).json({ error: 'wallet' });
     // signature binds wallet + fingerprint + time
     const msg = String(b.message || ''), sig = String(b.signature || '');
@@ -28,3 +29,7 @@ module.exports = async (req, res) => {
     if (!m) return res.status(400).json({ error: 'message' });
     if (m[1] !== String(b.fingerprint)) return res.status(400).json({ error: 'fingerprint' });
     if (Math.abs(Date.now() - Number(m[2])) > 10 * 60 * 1000) return res.status(400).json({ error: 'expired' });
+    let signer; try { signer = ethers.verifyMessage(msg, sig).toLowerCase(); } catch { return res.status(400).json({ error: 'signature' }); }
+    if (signer !== wallet) return res.status(401).json({ error: 'signature' });
+    // recompute the reward from the shelf, never trust the client's number
+    const brand = SHELF.find(x => x.name === b.merchant && x.ticker === b.ticker && !x.soon);
