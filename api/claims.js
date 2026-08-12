@@ -10,7 +10,6 @@ async function supa(path, opts = {}) {
 }
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Headers', 'content-type'); res.setHeader('Cache-Control', 'no-store');
-  if (req.method === 'OPTIONS') return res.status(204).end();
   if (!SUPA || !KEY || !SECRET) return res.status(500).json({ error: 'server not configured' });
   try {
     if (req.method === 'GET') {
@@ -36,5 +35,14 @@ module.exports = async (req, res) => {
     if (!brand) return res.status(400).json({ error: 'not on the shelf' });
     const route = b.route === 'email' ? 'email' : 'paper';
     if (!brand.proof.includes(route)) return res.status(400).json({ error: `${brand.name} does not accept ${route}` });
-    const total = Math.round(Number(b.total) * 100) / 100;
     if (!(total > 0 && total < 100000)) return res.status(400).json({ error: 'total' });
+    const reward = Math.round(SB.reward(total, brand, false) * 100) / 100;
+    const row = await supa('/rest/v1/rpc/stockback_submit_claim', { method: 'POST', body: JSON.stringify({ p_secret: SECRET, p_wallet: wallet, p_merchant: brand.name, p_ticker: brand.ticker, p_token_address: SB.address(brand.ticker), p_total: total, p_rate: brand.rate, p_reward: reward, p_route: route, p_fingerprint: String(b.fingerprint), p_excerpt: String(b.excerpt || '').slice(0, 600) }) });
+    return res.status(200).json({ ok: true, claim: row });
+  } catch (e) {
+    const t = String(e.message || e);
+    if (/duplicate key|unique/i.test(t)) return res.status(409).json({ error: 'already claimed' });
+    if (/daily limit/i.test(t)) return res.status(429).json({ error: 'three receipts a day' });
+    return res.status(500).json({ error: t.slice(0, 200) });
+  }
+};
