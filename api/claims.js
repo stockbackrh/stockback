@@ -33,3 +33,8 @@ module.exports = async (req, res) => {
     if (signer !== wallet) return res.status(401).json({ error: 'signature' });
     // recompute the reward from the shelf, never trust the client's number
     const brand = SHELF.find(x => x.name === b.merchant && x.ticker === b.ticker && !x.soon);
+    if (!brand) return res.status(400).json({ error: 'not on the shelf' });
+    const route = b.route === 'email' ? 'email' : 'paper';
+    if (!brand.proof.includes(route)) return res.status(400).json({ error: `${brand.name} does not accept ${route}` });
+    const total = Math.round(Number(b.total) * 100) / 100;
+    if (!(total > 0 && total < 100000)) return res.status(400).json({ error: 'total' });
