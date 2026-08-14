@@ -35,6 +35,7 @@ var SHELF = [
   {name:"Chipotle",ticker:"CMG",domain:"chipotle.com",rate:3,cat:"Food",proof:["paper","email"],soon:true},
   {name:"Home Depot",ticker:"HD",domain:"homedepot.com",rate:2,cat:"Retail",proof:["paper"],soon:true},
   {name:"Best Buy",ticker:"BBY",domain:"bestbuy.com",rate:2,cat:"Electronics",proof:["paper","email"],soon:true},
+  {name:"CVS",ticker:"CVS",domain:"cvs.com",rate:2,cat:"Health",proof:["paper"],soon:true},
   {name:"Adobe",ticker:"ADBE",domain:"adobe.com",rate:3,cat:"Subscription",proof:["email"],soon:true},
   {name:"Celsius",ticker:"CELH",domain:"celsius.com",rate:5,cat:"Drinks",proof:["paper"],soon:true,note:"A line on any supermarket receipt"},
   {name:"e.l.f. Beauty",ticker:"ELF",domain:"elfcosmetics.com",rate:5,cat:"Beauty",proof:["paper","email"],soon:true}
@@ -45,3 +46,7 @@ var SB = {
   capBase: 20, capHolder: 100, welcome: 5,
   live(){ return SHELF.filter(b=>!b.soon); },
   fmtSec(s){ if(s==null) return "—"; const m=Math.floor(s/60), r=s%60; return m>0? m+"m "+String(r).padStart(2,"0")+"s" : r+"s"; },
+  money(n){ return "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); },
+  shares(usd, brand){ return brand.price? usd/brand.price : 0; },
+  median(){ const a=this.live().map(b=>b.settle).sort((x,y)=>x-y); return a[Math.floor(a.length/2)]; },
+  logo(b){ return "https://www.google.com/s2/favicons?domain="+b.domain+"&sz=64"; },
