@@ -37,7 +37,6 @@
   </div>
 </div>
 <div class="card" style="padding:1.3rem 1.4rem">
-  <p class="eyebrow">Reading</p>
   <ol class="steps" id="steps"><li data-k="read"><i>1</i>Read the text off the receipt</li><li data-k="real"><i>2</i>Check it is real, and not already claimed</li><li data-k="match"><i>3</i>Match the merchant to a brand on the shelf</li><li data-k="price"><i>4</i>Price the reward at market</li></ol>
   <div id="ocr" class="receipt hidden" style="margin-top:1rem"></div>
   <div id="out" class="result hidden"></div>
@@ -67,6 +66,7 @@
   function renderClaims(list){ if(!list||!list.length){ claimsEl.innerHTML='<p class="loading">'+(SBW.address?'No claims from this wallet yet.':'Connect a wallet to see its claims.')+'</p>'; return; }
     claimsEl.innerHTML=list.map(function(x){ return '<div class="trow"><span class="tasset"><span class="tname"><b>'+esc(x.merchant)+'</b><span>'+new Date(x.created_at).toLocaleString()+'</span></span></span><span class="tcell"><b>'+SB.money(Number(x.total_usd))+'</b><span>read</span></span><span class="tcell"><b>'+x.route+'</b><span>'+Number(x.rate)+'%</span></span><span class="tcell"><b>'+SB.money(Number(x.reward_usd))+'</b><span>in '+x.ticker+'</span></span><span class="tage">'+statusHtml(x)+'</span></div>'; }).join(''); }
   async function loadClaims(){ if(!SBW.address) return renderClaims([]); try{ var r=await fetch('/api/claims?wallet='+SBW.address).then(function(r){return r.json();}); renderClaims(r.claims||[]); }catch(e){ renderClaims([]); } }
+  function hash(s){ var h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } var h2=0; for(var j=0;j<s.length;j++){ h2=(h2*31+s.charCodeAt(j))|0; } return (h>>>0).toString(16).padStart(8,'0')+(h2>>>0).toString(16).padStart(8,'0'); }
   SBW.onChange(function(){ document.getElementById('wallet-btn').textContent=SBW.address?SBW.short()+(SBW.chainOk?'':' · wrong chain'):'Connect wallet'; loadClaims(); if(pending&&SBW.address) submit(pending); });
   document.getElementById('wallet-btn').addEventListener('click',function(){ SBW.connect().catch(function(e){ msg.textContent='Wallet: '+(e.message||e); }); });
   var pending=null;
@@ -102,3 +102,14 @@
     if(r.brand){ var re=new RegExp('('+r.brand.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','i'); shown=shown.replace(re,'<mark>$1</mark>'); }
     if(r.total!=null){ shown=shown.replace(new RegExp('('+String(r.total.toFixed(2)).replace('.','\\.')+')'),'<mark>$1</mark>'); }
     ocr.innerHTML=shown||'<span style="color:var(--ink-faint)">No text could be read. Try a flatter, brighter photo.</span>';
+    var key=hash(text.replace(/\s+/g,' ').toLowerCase().slice(0,600)); var dup=false;
+    setTimeout(function(){
+      if(dup){ step('real','is-bad'); msg.innerHTML='<b>Already claimed.</b> This receipt was sent before. One purchase, one reward.'; return; }
+      step('real','is-done');
+      setTimeout(function(){
+        if(!r.brand){ step('match','is-bad'); msg.innerHTML='<b>Not on the shelf.</b> No brand name the reader knows was found on this receipt. See the <a href="/app.html">shelf</a> for who pays today.'; return; }
+        if(r.brand.soon){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' is not paying yet.</b> Robinhood has not listed '+r.brand.ticker+' on chain. It will be on the shelf the day they do.'; return; }
+        if(route==='email'&&r.brand.proof.indexOf('email')<0){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' accepts paper only.</b> Photograph the till receipt instead.'; return; }
+        if(route==='paper'&&r.brand.proof.indexOf('paper')<0){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' accepts email only.</b> Forward the order confirmation instead.'; return; }
+        step('match','is-done');
+        if(r.total==null){ step('price','is-bad'); msg.innerHTML='<b>No total found.</b> The reader saw '+r.brand.name+' but could not find a total. Make sure the bottom of the receipt is in the frame.'; return; }
