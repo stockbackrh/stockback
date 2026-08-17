@@ -37,6 +37,7 @@
   </div>
 </div>
 <div class="card" style="padding:1.3rem 1.4rem">
+  <p class="eyebrow">Reading</p>
   <ol class="steps" id="steps"><li data-k="read"><i>1</i>Read the text off the receipt</li><li data-k="real"><i>2</i>Check it is real, and not already claimed</li><li data-k="match"><i>3</i>Match the merchant to a brand on the shelf</li><li data-k="price"><i>4</i>Price the reward at market</li></ol>
   <div id="ocr" class="receipt hidden" style="margin-top:1rem"></div>
   <div id="out" class="result hidden"></div>
@@ -113,3 +114,9 @@
         if(route==='paper'&&r.brand.proof.indexOf('paper')<0){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' accepts email only.</b> Forward the order confirmation instead.'; return; }
         step('match','is-done');
         if(r.total==null){ step('price','is-bad'); msg.innerHTML='<b>No total found.</b> The reader saw '+r.brand.name+' but could not find a total. Make sure the bottom of the receipt is in the frame.'; return; }
+        setTimeout(function(){
+          step('price','is-done');
+          var reward=SB.reward(r.total,r.brand,false), sh=SB.shares(reward,r.brand);
+          out.classList.remove('hidden');
+          out.innerHTML='<div class="prow"><span>Merchant</span><span>'+r.brand.name+' → '+r.brand.ticker+'</span></div><div class="prow"><span>Total read</span><span>'+SB.money(r.total)+'</span></div><div class="prow"><span>Date</span><span>'+(r.date||'not found, today assumed')+'</span></div><div class="prow"><span>Rate</span><span>'+r.brand.rate+'% · cap $'+SB.capBase+' ($'+SB.capHolder+' holding $STOCKBACK)</span></div><div class="reward"><div><b>'+SB.money(reward)+' in '+r.brand.ticker+'</b><small>≈ '+sh.toFixed(4)+' '+r.brand.ticker+' at '+SB.money(r.brand.price)+'</small></div><span>at market, on settlement</span></div>';
+          submit({key:key,brand:r.brand,total:r.total,route:route,excerpt:text.slice(0,600)});
