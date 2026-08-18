@@ -71,8 +71,6 @@
   SBW.onChange(function(){ document.getElementById('wallet-btn').textContent=SBW.address?SBW.short()+(SBW.chainOk?'':' · wrong chain'):'Connect wallet'; loadClaims(); if(pending&&SBW.address) submit(pending); });
   document.getElementById('wallet-btn').addEventListener('click',function(){ SBW.connect().catch(function(e){ msg.textContent='Wallet: '+(e.message||e); }); });
   var pending=null;
-  async function submit(r){
-    if(!SBW.address){ pending=r; msg.innerHTML='<b>Accepted.</b> Connect a wallet on Robinhood Chain to file the claim and receive the shares.'; return; }
     if(!SBW.chainOk){ try{ await SBW.switchChain(); }catch(e){ msg.textContent='Switch the wallet to Robinhood Chain to file the claim.'; return; } }
     pending=null; msg.textContent='Sign the claim in your wallet. It costs nothing, it only proves the wallet is yours.';
     try{
@@ -85,7 +83,6 @@
       loadClaims();
     }catch(e){ msg.textContent='Not filed: '+(e.shortMessage||e.message||e); }
   }
-  loadClaims();
   // parse
   function parse(text){
     var t=text.replace(/\r/g,''), lines=t.split('\n').map(function(l){return l.trim();}).filter(Boolean);
@@ -110,7 +107,6 @@
       setTimeout(function(){
         if(!r.brand){ step('match','is-bad'); msg.innerHTML='<b>Not on the shelf.</b> No brand name the reader knows was found on this receipt. See the <a href="/app.html">shelf</a> for who pays today.'; return; }
         if(r.brand.soon){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' is not paying yet.</b> Robinhood has not listed '+r.brand.ticker+' on chain. It will be on the shelf the day they do.'; return; }
-        if(route==='email'&&r.brand.proof.indexOf('email')<0){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' accepts paper only.</b> Photograph the till receipt instead.'; return; }
         if(route==='paper'&&r.brand.proof.indexOf('paper')<0){ step('match','is-bad'); msg.innerHTML='<b>'+r.brand.name+' accepts email only.</b> Forward the order confirmation instead.'; return; }
         step('match','is-done');
         if(r.total==null){ step('price','is-bad'); msg.innerHTML='<b>No total found.</b> The reader saw '+r.brand.name+' but could not find a total. Make sure the bottom of the receipt is in the frame.'; return; }
@@ -131,3 +127,11 @@
     Tesseract.recognize(f,'eng',{logger:function(m){ if(m.status==='recognizing text'&&m.progress){ msg.textContent='Reading… '+Math.round(m.progress*100)+'%'; } }}).then(function(res){ finish(res.data.text||'','paper'); }).catch(function(e){ step('read','is-bad'); msg.textContent='Could not read that photo: '+(e&&e.message||e); });
   }
   file.addEventListener('change',function(){ handle(file.files[0]); });
+  ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('is-over'); }); });
+  ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('is-over'); }); });
+  drop.addEventListener('drop',function(e){ handle(e.dataTransfer.files[0]); });
+  // email: paste
+  document.getElementById('read-email').addEventListener('click',function(){ var t=document.getElementById('email-text').value.trim(); if(!t){ msg.textContent='Paste the email first.'; return; } reset(); step('read','is-on'); setTimeout(function(){ finish(t,'email'); },400); });
+})();
+</script>
+</body></html>
