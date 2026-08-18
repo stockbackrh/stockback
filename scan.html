@@ -26,6 +26,7 @@
 <section class="pagehead reveal"><h1>Scan a receipt</h1><p>Photograph the paper, or forward the email. Everything is read here, in your browser, before anything leaves it. Connect a wallet on Robinhood Chain, and an accepted claim is bought as the brand's tokenized share and sent to that wallet by the settlement keeper, usually within minutes.</p></section>
 <div class="toolbar reveal" style="animation-delay:80ms"><div class="segs" id="mode"><button class="seg is-on" data-mode="paper" type="button">Paper receipt</button><button class="seg" data-mode="email" type="button">Order email</button></div><span class="toolbar-spacer"></span><span class="mini" id="brand-hint"></span></div>
 <section class="scan reveal" style="animation-delay:140ms">
+<div>
   <div id="paper-pane">
     <label class="drop" id="drop"><input type="file" id="file" accept="image/*" capture="environment"/><img id="preview" class="hidden" alt=""/><span id="drop-text"><span class="drop-title">Photograph the receipt</span><br/><span class="drop-sub">Tap to open the camera on a phone, or drop a photo here. The merchant, the date and the total are read on this page, by a model, in a few seconds.</span></span></label>
   </div>
@@ -124,3 +125,9 @@
     },700);
   }
   // paper: OCR in the browser
+  var file=document.getElementById('file'), drop=document.getElementById('drop'), preview=document.getElementById('preview');
+  function handle(f){ if(!f) return; reset(); preview.src=URL.createObjectURL(f); preview.classList.remove('hidden'); document.getElementById('drop-text').classList.add('hidden'); step('read','is-on'); msg.textContent='Reading the receipt on this page. A few seconds.';
+    if(!window.Tesseract){ msg.textContent='The reader could not load. Check the connection and try again.'; return; }
+    Tesseract.recognize(f,'eng',{logger:function(m){ if(m.status==='recognizing text'&&m.progress){ msg.textContent='Reading… '+Math.round(m.progress*100)+'%'; } }}).then(function(res){ finish(res.data.text||'','paper'); }).catch(function(e){ step('read','is-bad'); msg.textContent='Could not read that photo: '+(e&&e.message||e); });
+  }
+  file.addEventListener('change',function(){ handle(file.files[0]); });
