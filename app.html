@@ -28,6 +28,7 @@
 <footer class="foot shell"><span>2026 usestockback.xyz</span><a class="footlink" href="/contact.html">Contact</a><a class="footlink" href="/privacy.html">Privacy</a><a class="footlink" href="/terms.html">Terms</a><a class="footlink" href="https://x.com/StockBackfam" target="_blank" rel="noreferrer noopener">X</a></footer>
 
 </main>
+<script>
 (function(){
   var seg='live', sort='rate', q='';
   var rows=document.getElementById('rows');
@@ -51,3 +52,8 @@
   document.getElementById('sort').addEventListener('change',function(e){ sort=e.target.value; render(); });
   document.getElementById('q').addEventListener('input',function(e){ q=e.target.value.trim(); render(); });
   var live=SB.live(), soon=SHELF.filter(function(b){return b.soon;});
+  document.getElementById('s-live').textContent=live.length;
+  document.getElementById('s-rate').textContent=Math.max.apply(null,live.map(function(b){return b.rate;}))+'%';
+  document.getElementById('s-slow').textContent=SB.fmtSec(Math.max.apply(null,live.map(function(b){return b.settle;})));
+  render();
+  fetch('/api/shelf').then(function(r){return r.json();}).then(function(j){ if(!j||!j.medians) return; var touched=false; j.medians.forEach(function(m){ if(m.settled>=1&&m.median_seconds!=null){ SHELF.forEach(function(b){ if(b.ticker===m.ticker&&!b.soon){ b.settle=Math.round(Number(m.median_seconds)); b.live=true; touched=true; } }); } }); if(touched){ render(); document.getElementById('s-slow').textContent=SB.fmtSec(Math.max.apply(null,SB.live().map(function(b){return b.settle;}))); } }).catch(function(){});
