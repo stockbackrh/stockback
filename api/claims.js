@@ -20,6 +20,7 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, claims: rows });
     }
     if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
+    const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
     const wallet = String(b.wallet || '').toLowerCase();
     if (!/^0x[0-9a-f]{40}$/.test(wallet)) return res.status(400).json({ error: 'wallet' });
     // signature binds wallet + fingerprint + time
@@ -42,3 +43,8 @@ module.exports = async (req, res) => {
     return res.status(200).json({ ok: true, claim: row });
   } catch (e) {
     const t = String(e.message || e);
+    if (/duplicate key|unique/i.test(t)) return res.status(409).json({ error: 'already claimed' });
+    if (/daily limit/i.test(t)) return res.status(429).json({ error: 'three receipts a day' });
+    return res.status(500).json({ error: t.slice(0, 200) });
+  }
+};

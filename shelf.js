@@ -47,6 +47,12 @@ var SB = {
   live(){ return SHELF.filter(b=>!b.soon); },
   fmtSec(s){ if(s==null) return "—"; const m=Math.floor(s/60), r=s%60; return m>0? m+"m "+String(r).padStart(2,"0")+"s" : r+"s"; },
   money(n){ return "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); },
+  reward(total, brand, holder){ const raw=total*brand.rate/100; const cap=holder?this.capHolder:this.capBase; return Math.min(raw,cap); },
   shares(usd, brand){ return brand.price? usd/brand.price : 0; },
   median(){ const a=this.live().map(b=>b.settle).sort((x,y)=>x-y); return a[Math.floor(a.length/2)]; },
   logo(b){ return "https://www.google.com/s2/favicons?domain="+b.domain+"&sz=64"; },
+  address(t){ return TOKENS[t]||null; },
+  find(text){ const t=text.toLowerCase(); return SHELF.find(b=>t.includes(b.name.toLowerCase().replace("&","and"))||t.includes(b.name.toLowerCase())||t.includes(b.domain.split(".")[0])); }
+};
+root.SHELF=SHELF; root.SB=SB;
+})(typeof window!=="undefined"?window:module.exports);
