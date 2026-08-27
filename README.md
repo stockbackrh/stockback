@@ -17,8 +17,19 @@ StockBack pays you in the stock of the company you just bought from. Photograph 
 ## What is in this repo
 
 | Path | What it is |
+|---|---|
 | `index.html`, `app.html`, `scan.html`, `token.html` | The site: landing, the shelf of brands, the receipt scanner, the token page |
 | `docs.html`, `faq.html`, `terms.html`, `privacy.html`, `contact.html` | Documentation and legal |
 | `shelf.js` | The shelf: every brand, its rate, what it accepts as proof, the stock token address on Robinhood Chain. Shared by the browser and the API |
 | `wallet.js` | Injected EVM wallet connect for Robinhood Chain (chain id 4663), no SDK |
 | `api/claims.js` | Claims API. Verifies the wallet signature, recomputes the reward from the shelf, stores the claim |
+| `api/shelf.js` | Live settlement medians per ticker |
+| `keeper/settle.mjs` | Settlement keeper. Buys the brand's tokenized share on Uniswap v3 and delivers it to the claimant in one transaction |
+| `stockback.css`, `site.js` | Theme and landing behaviour on top of the base stylesheet |
+
+## How a claim moves
+
+1. The receipt is read in the browser with an OCR model. The merchant, the date and the total never leave the page until you file the claim.
+2. Filing a claim means signing a short message with your wallet. The signature binds the wallet to the receipt's fingerprint, and the API rejects anything else.
+3. The API recomputes the reward from the shelf, applies the caps, and writes the claim. One receipt, one reward. Three receipts a day per wallet.
+4. The keeper picks up accepted claims, quotes ETH to USDG to the stock token, and sends the swap output straight to the claimant. The transaction hash is attached to the claim.
