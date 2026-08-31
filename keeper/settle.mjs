@@ -12,6 +12,7 @@ const FACTORY = '0x1f7d7550B1b028f7571E69A784071F0205FD2EfA', ROUTER = '0xcaf681
 const MAX_ETH_PER_CLAIM = Number(env.MAX_ETH_PER_CLAIM || '0.02'), SLIPPAGE = 0.02;
 const fr = new ethers.FetchRequest(RPC); fr.setHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128.0 Safari/537.36'); fr.setHeader('Origin', 'https://robinhood.com');
 const provider = new ethers.JsonRpcProvider(fr, 4663, { staticNetwork: true });
+const wallet = env.TREASURY_PK ? new ethers.Wallet(env.TREASURY_PK, provider) : null;
 const factory = new ethers.Contract(FACTORY, ['function getPool(address,address,uint24) view returns(address)'], provider);
 const quoter = new ethers.Contract(QUOTER, ['function quoteExactInput(bytes path, uint256 amountIn) returns (uint256 amountOut, uint160[] sqrtPriceX96AfterList, uint32[] initializedTicksCrossedList, uint256 gasEstimate)'], provider);
 const router = new ethers.Contract(ROUTER, ['function exactInput((bytes path,address recipient,uint256 amountIn,uint256 amountOutMinimum)) payable returns (uint256 amountOut)'], wallet || provider);
@@ -52,3 +53,10 @@ async function settle(c) {
   if (bal < amountIn + ethers.parseEther('0.001')) return mark(c.id, 'queued', null, null, 'treasury low on ETH');
   const tx = await router.exactInput({ path: path(fee2, token), recipient: c.wallet, amountIn, amountOutMinimum: minOut }, { value: amountIn });
   console.log('  tx', tx.hash);
+  const rc = await tx.wait();
+  if (rc.status !== 1) return mark(c.id, 'queued', tx.hash, null, 'swap reverted');
+  const topic = ethers.id('Transfer(address,address,uint256)'), to = ethers.zeroPadValue(c.wallet, 32).toLowerCase();
+  let got = 0n; for (const l of rc.logs) if (l.address.toLowerCase() === token.toLowerCase() && l.topics[0] === topic && l.topics[2].toLowerCase() === to) got += BigInt(l.data);
+  await mark(c.id, 'settled', tx.hash, Number(ethers.formatUnits(got, dec)), null);
+  console.log(`  settled: ${ethers.formatUnits(got, dec)} ${c.ticker} to ${c.wallet}`);
+}
