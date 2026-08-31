@@ -12,7 +12,6 @@ const FACTORY = '0x1f7d7550B1b028f7571E69A784071F0205FD2EfA', ROUTER = '0xcaf681
 const MAX_ETH_PER_CLAIM = Number(env.MAX_ETH_PER_CLAIM || '0.02'), SLIPPAGE = 0.02;
 const fr = new ethers.FetchRequest(RPC); fr.setHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128.0 Safari/537.36'); fr.setHeader('Origin', 'https://robinhood.com');
 const provider = new ethers.JsonRpcProvider(fr, 4663, { staticNetwork: true });
-const wallet = env.TREASURY_PK ? new ethers.Wallet(env.TREASURY_PK, provider) : null;
 const factory = new ethers.Contract(FACTORY, ['function getPool(address,address,uint24) view returns(address)'], provider);
 const quoter = new ethers.Contract(QUOTER, ['function quoteExactInput(bytes path, uint256 amountIn) returns (uint256 amountOut, uint160[] sqrtPriceX96AfterList, uint32[] initializedTicksCrossedList, uint256 gasEstimate)'], provider);
 const router = new ethers.Contract(ROUTER, ['function exactInput((bytes path,address recipient,uint256 amountIn,uint256 amountOutMinimum)) payable returns (uint256 amountOut)'], wallet || provider);
@@ -44,3 +43,12 @@ async function settle(c) {
   const ethUsd = Number(ethers.formatUnits(q0[0], 6)) / 0.001;
   const amountIn = ethers.parseEther((Number(c.reward_usd) / ethUsd * 1.005).toFixed(18));
   if (Number(ethers.formatEther(amountIn)) > MAX_ETH_PER_CLAIM) return mark(c.id, 'queued', null, null, 'reward above per-claim ETH cap');
+  const q = await quoter.quoteExactInput.staticCall(path(fee2, token), amountIn);
+  const dec = await erc20(token).decimals();
+  const minOut = q[0] - q[0] * BigInt(Math.round(SLIPPAGE * 1000)) / 1000n;
+  console.log(`  ${c.ticker} reward $${c.reward_usd} -> ${ethers.formatEther(amountIn)} ETH @ $${ethUsd.toFixed(0)} -> ~${ethers.formatUnits(q[0], dec)} ${c.ticker} (fee ${fee2})`);
+  if (DRY || !wallet) return console.log('  dry run, not sent');
+  const bal = await provider.getBalance(wallet.address);
+  if (bal < amountIn + ethers.parseEther('0.001')) return mark(c.id, 'queued', null, null, 'treasury low on ETH');
+  const tx = await router.exactInput({ path: path(fee2, token), recipient: c.wallet, amountIn, amountOutMinimum: minOut }, { value: amountIn });
+  console.log('  tx', tx.hash);
