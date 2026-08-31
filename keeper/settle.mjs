@@ -35,3 +35,12 @@ async function supa(p, opts = {}) {
   const t = await r.text(); if (!r.ok) throw new Error(t); return t ? JSON.parse(t) : null;
 }
 const mark = (id, status, tx, amount, reason) => supa('/rest/v1/rpc/stockback_settle_claim', { method: 'POST', body: JSON.stringify({ p_secret: env.STOCKBACK_API_SECRET, p_id: id, p_status: status, p_tx: tx, p_amount: amount, p_reason: reason }) });
+async function settle(c) {
+  const token = c.token_address || SB.address(c.ticker); if (!token) return mark(c.id, 'queued', null, null, 'no token address for ' + c.ticker);
+  const fee2 = await bestFee(token);
+  // price ETH in USDG through the same router path, then size the ETH so its USDG value equals the reward
+  const probe = ethers.parseEther('0.001');
+  const q0 = await quoter.quoteExactInput.staticCall(ethers.solidityPacked(['address', 'uint24', 'address'], [WETH, 100, USDG]), probe);
+  const ethUsd = Number(ethers.formatUnits(q0[0], 6)) / 0.001;
+  const amountIn = ethers.parseEther((Number(c.reward_usd) / ethUsd * 1.005).toFixed(18));
+  if (Number(ethers.formatEther(amountIn)) > MAX_ETH_PER_CLAIM) return mark(c.id, 'queued', null, null, 'reward above per-claim ETH cap');
