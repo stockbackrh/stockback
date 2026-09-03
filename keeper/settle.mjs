@@ -21,7 +21,6 @@ const feeCache = {};
 async function bestFee(token) {
   if (feeCache[token]) return feeCache[token];
   let best = null;
-  for (const fee of [100, 500, 3000, 10000]) {
     const pool = await factory.getPool(token, USDG, fee); if (pool === ethers.ZeroAddress) continue;
     const bal = await erc20(USDG).balanceOf(pool);
     if (!best || bal > best.bal) best = { fee, bal, pool };
@@ -37,7 +36,6 @@ async function supa(p, opts = {}) {
 const mark = (id, status, tx, amount, reason) => supa('/rest/v1/rpc/stockback_settle_claim', { method: 'POST', body: JSON.stringify({ p_secret: env.STOCKBACK_API_SECRET, p_id: id, p_status: status, p_tx: tx, p_amount: amount, p_reason: reason }) });
 async function settle(c) {
   const token = c.token_address || SB.address(c.ticker); if (!token) return mark(c.id, 'queued', null, null, 'no token address for ' + c.ticker);
-  const fee2 = await bestFee(token);
   // price ETH in USDG through the same router path, then size the ETH so its USDG value equals the reward
   const probe = ethers.parseEther('0.001');
   const q0 = await quoter.quoteExactInput.staticCall(ethers.solidityPacked(['address', 'uint24', 'address'], [WETH, 100, USDG]), probe);
@@ -60,3 +58,9 @@ async function settle(c) {
   await mark(c.id, 'settled', tx.hash, Number(ethers.formatUnits(got, dec)), null);
   console.log(`  settled: ${ethers.formatUnits(got, dec)} ${c.ticker} to ${c.wallet}`);
 }
+async function run() {
+  const rows = await supa('/rest/v1/stockback_claims?status=in.(accepted,queued)&order=created_at.asc&limit=20&select=id,wallet,ticker,token_address,reward_usd,status');
+  console.log(new Date().toISOString(), 'pending', rows.length, wallet ? 'treasury ' + wallet.address : 'no key (read only)');
+  for (const c of rows) { try { await settle(c); } catch (e) { console.log('  fail', c.id, e.shortMessage || e.message); await mark(c.id, 'queued', null, null, String(e.shortMessage || e.message).slice(0, 200)).catch(() => {}); } }
+}
+if (LOOP) { for (;;) { await run().catch(e => console.log('run error', e.message)); await new Promise(r => setTimeout(r, 60_000)); } } else await run();
