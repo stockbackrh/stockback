@@ -47,6 +47,7 @@
 .reward small{display:block;font-size:.74rem;color:rgba(255,255,255,.55);margin-top:.15rem}
 .mailbox{display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.8rem 1rem;border:1px solid var(--line-strong);border-radius:12px;background:#fff;font-family:var(--font-mono),ui-monospace,monospace;font-size:.86rem}
 .mailbox button{border:0;background:var(--ink);color:#fff;font-size:.76rem;font-weight:600;padding:.4rem .8rem;border-radius:100px;cursor:pointer;font-family:var(--font-body),system-ui,sans-serif}
+.claims{margin-top:1.4rem}
 .claims .trow{cursor:default}
 .claims .trow:hover{background:transparent}
 .tick{color:var(--up)}
@@ -192,3 +193,11 @@ a{color:inherit}
 .lvideo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}
 .lvideo-fade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,11,.25) 0,rgba(10,10,11,0) 22%,rgba(10,10,11,0) 55%,rgba(10,10,11,.85) 82%,#0a0a0b 100%)}
 .landing>.lnav,.landing>.lhero,.landing>.lhero-art{position:relative;z-index:1}
+.lnav{background:linear-gradient(180deg,rgba(10,10,11,.45),rgba(10,10,11,0))}
+@media (prefers-reduced-motion:reduce){.lvideo video{display:none}.lvideo{background:#0a0a0b url(/hero-poster.jpg) center/cover}}
+@media (max-width:760px){.lvideo{height:820px}}
+.lhero{padding-bottom:clamp(15rem,30vw,26rem)}
+.lhero>.shell:before{content:"";position:absolute;left:50%;top:50%;width:min(1100px,110%);height:130%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(10,10,11,.62) 0,rgba(10,10,11,.42) 40%,rgba(10,10,11,0) 70%);z-index:-1;pointer-events:none}
+.lhero>.shell{z-index:1}
+.lvideo{height:1120px}
+.lvideo-fade{background:linear-gradient(to bottom,rgba(10,10,11,.3) 0,rgba(10,10,11,0) 20%,rgba(10,10,11,0) 62%,rgba(10,10,11,.9) 88%,#0a0a0b 100%)}
