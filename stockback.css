@@ -124,6 +124,7 @@ html,body{background:var(--paper);color:var(--ink)}
 .navlink{color:var(--ink-dim)}.navlink.is-on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
 .wbtn{background:var(--ink-face);color:var(--on-accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 1px 2px rgba(0,0,0,.5),0 8px 24px -10px rgba(149,249,71,.55)}
 .wbtn:hover:not(:disabled){background:var(--ink-face-hover);color:var(--on-accent)}
+.wbtn.is-plain,.wbtn.is-plain:hover:not(:disabled){background:#151519;color:var(--ink);border:1px solid var(--line-strong);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
 .lstats{background:linear-gradient(180deg,#121216,#0d0d10);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 .lstat-value{color:var(--ink)}
 .lmarquee{background:linear-gradient(180deg,#0f0f12,#0a0a0b)}
@@ -212,3 +213,14 @@ a{color:inherit}
 .claims .tcell:nth-of-type(2):before{content:"Total"}
 .claims .tcell:nth-of-type(3):before{content:"Route"}
 .claims .tcell:nth-of-type(4):before{content:"Reward"}
+.claims .tage:before{content:"Status"}
+@media (max-width:760px){
+  .lhero>.shell:before{background:radial-gradient(ellipse at center,rgba(10,10,11,.8) 0,rgba(10,10,11,.6) 45%,rgba(10,10,11,0) 72%)}
+  .lhero{padding-bottom:clamp(12rem,60vw,18rem)}
+  .lvideo{height:900px}
+  .lwork-pick{gap:.3rem}
+  .ltoken-facts{grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+  .ltoken-facts b{font-size:1.25rem}
+  .lex-grid{grid-template-columns:minmax(0,1fr)}
+}
+.topbar{background:rgba(10,10,11,.96)}
