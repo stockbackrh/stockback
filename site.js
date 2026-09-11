@@ -30,3 +30,10 @@
   range.addEventListener('input',render);
   picks.forEach(function(b){ b.addEventListener('click',function(){ picks.forEach(function(x){x.classList.remove('is-on');}); b.classList.add('is-on'); brand=SHELF.find(function(x){return x.name===b.dataset.brand;}); render(); }); });
   tabs.forEach(function(t){ t.addEventListener('click',function(){ tabs.forEach(function(x){x.classList.remove('is-on');}); t.classList.add('is-on'); holder=t.dataset.holder==='1'; render(); }); });
+  // 3. live stats
+  var live=SB.live(); var el;
+  if((el=document.getElementById('stat-brands'))) el.textContent=SHELF.length;
+  if((el=document.getElementById('stat-live'))) el.textContent=live.length;
+  if((el=document.getElementById('stat-settle'))) el.textContent=SB.fmtSec(SB.median());
+  render();
+})();
