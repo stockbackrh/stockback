@@ -33,3 +33,17 @@ StockBack pays you in the stock of the company you just bought from. Photograph 
 2. Filing a claim means signing a short message with your wallet. The signature binds the wallet to the receipt's fingerprint, and the API rejects anything else.
 3. The API recomputes the reward from the shelf, applies the caps, and writes the claim. One receipt, one reward. Three receipts a day per wallet.
 4. The keeper picks up accepted claims, quotes ETH to USDG to the stock token, and sends the swap output straight to the claimant. The transaction hash is attached to the claim.
+
+## Running it
+
+```bash
+npm install
+node serve.mjs 4880            # static site + api stubs on http://localhost:4880
+node keeper/settle.mjs --dry   # what the keeper would buy, without sending
+```
+
+The API and the keeper need `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `STOCKBACK_API_SECRET`. The keeper also needs `TREASURY_PK` for a wallet funded with ETH on Robinhood Chain.
+
+## Caps and rates
+
+Each brand sets its own rate, 1% to 5% of the receipt. Rewards are capped at $20 a receipt, or $100 when the wallet holds $STOCKBACK. Tokenized shares track the price of the underlying share and move in both directions. StockBack is not a broker, a bank or an exchange, and nothing here is investment advice.
