@@ -27,6 +27,15 @@ StockBack pays you in the stock of the company you just bought from. Photograph 
 | `keeper/settle.mjs` | Settlement keeper. Buys the brand's tokenized share on Uniswap v3 and delivers it to the claimant in one transaction |
 | `stockback.css`, `site.js` | Theme and landing behaviour on top of the base stylesheet |
 
+## The parts, as their own repos
+
+| Repo | What it is |
+|---|---|
+| [receipt-reader](https://github.com/stockbackrh/receipt-reader) | The parser and the OCR wrapper, as a package with fixtures and tests |
+| [shelf](https://github.com/stockbackrh/shelf) | The brand list and the token addresses, validated before they land here |
+| [settlement-keeper](https://github.com/stockbackrh/settlement-keeper) | The keeper as a standalone package with the sizing math under test |
+| [settlement-log](https://github.com/stockbackrh/settlement-log) | Append-only log of the settlement medians the shelf prints |
+
 ## How a claim moves
 
 1. The receipt is read in the browser with an OCR model. The merchant, the date and the total never leave the page until you file the claim.
