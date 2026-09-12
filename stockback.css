@@ -227,3 +227,5 @@ a{color:inherit}
 .xbtn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:100px;margin-right:.6rem;color:var(--ink);background:#151519;border:1px solid var(--line-strong);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);transition:color .15s,border-color .15s,transform .12s}
 .xbtn:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-1px)}
 @media (max-width:760px){.xbtn{margin-right:.45rem}}
+.xbtn{flex:none}
+@media (max-width:760px){.xbtn{width:32px;height:32px}.lnav-in>.wbtn,.topbar-in .wbtn{padding:.5rem .8rem;font-size:.8rem;white-space:nowrap}.lnav-in,.topbar-in{gap:.8rem}.brand{font-size:1.05rem}}
