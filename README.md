@@ -55,4 +55,4 @@ The API and the keeper need `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `STOCKBACK_A
 
 ## Caps and rates
 
-Each brand sets its own rate, 1% to 5% of the receipt. Rewards are capped at $20 a receipt, or $100 when the wallet holds $STOCKBACK. Tokenized shares track the price of the underlying share and move in both directions. StockBack is not a broker, a bank or an exchange, and nothing here is investment advice.
+Each brand sets its own rate, 1% to 5% of the receipt. Rewards are capped at $20 a receipt, or $100 when the wallet holds $STKB. Tokenized shares track the price of the underlying share and move in both directions. StockBack is not a broker, a bank or an exchange, and nothing here is investment advice.
